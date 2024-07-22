@@ -10,13 +10,15 @@ AVAILABLE_DATASETS = [
     "BBH_object_counting",
     "BBH_word_sorting",
     "GSM8K_DSPy",
+    "MedQA"
 ]
 
 AVAILABLE_INSTANCE_DATASETS = [
     "MMLU_machine_learning",
     "MMLU_college_physics",
-    "GPQA_diamond"
-    "LeetCodeHardEval"
+    "GPQA_diamond",
+    "LeetCodeHardEval", 
+    "MedQA"
 ]
 
 def load_task(task_name: str, evaluation_api: EngineLM, *args, **kwargs) -> Tuple[Dataset, Dataset, Callable]:
@@ -41,7 +43,7 @@ def load_task(task_name: str, evaluation_api: EngineLM, *args, **kwargs) -> Tupl
         fn_purpose = "The runtime of string-based function that checks if the prediction is correct."
         eval_fn = StringBasedFunction(string_based_equality_fn, function_purpose=fn_purpose)
         return train_set, val_set, test_set, eval_fn
-    
+        
     elif "BBH" in task_name:
         from textgrad.loss import MultiFieldTokenParsedEvaluation
         from .big_bench_hard import BigBenchHard
@@ -101,5 +103,10 @@ def load_instance_task(task_name: str, evaluation_api: EngineLM, *args, **kwargs
     elif task_name in ["LeetCodeHardEval"]:
         dataset = LeetCodeHardEval()
         return dataset
+    
+    elif "MedQA" in task_name:
+        from .medqa import MedQAInstanceDataset
+        test_set = MedQAInstanceDataset(evaluation_api=evaluation_api, )
+
     else:
         raise ValueError(f"Instance task {task_name} not found.")
