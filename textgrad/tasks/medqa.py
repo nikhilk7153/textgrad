@@ -35,14 +35,14 @@ Answer the following multiple choice question. The last line of your response sh
 
 {Question}
 
-A) {A}
-B) {B}
-C) {C}
-D) {D}
+(A) {A}
+(B) {B}
+(C) {C}
+(D) {D}
 """.strip()
 
 class MedQA(Dataset):
-    def __init__(self, subset:str, root: str=None, split: str="train", *args, **kwargs):
+    def __init__(self, subset:str, root: str=None, split: str="test", *args, **kwargs):
         """
         MMLU dataset from HF."""
         if root is None:

@@ -72,7 +72,7 @@ def run_test_time_training(sample):
         ))
 
     # Start test time training
-    for _ in range(args.max_iterations):
+    for _ in range(5):
         optimizer.zero_grad()
         # Compute the test time loss
         test_time_loss = test_time_objective(instance_var)
@@ -89,15 +89,18 @@ def run_test_time_training(sample):
     predictions.append(ensembled_prediction)
     return performance_history, predictions, question, answer
 
+engine = "gpt-3.5-turbo"
+num_threads = 6 
+task = "MedQA"
 
-args = config()
-llm_engine = tg.get_engine(engine_name=args.engine)
+
+llm_engine = tg.get_engine(engine_name=engine)
 tg.set_backward_engine(llm_engine, override=True)
-test_set = load_instance_task(args.task, evaluation_api=llm_engine)
+test_set = load_instance_task(task, evaluation_api=llm_engine)
 ensembler = MajorityVoting()
 
 all_solutions = {}
-with concurrent.futures.ThreadPoolExecutor(max_workers=args.num_threads) as executor:
+with concurrent.futures.ThreadPoolExecutor(max_workers=num_threads) as executor:
     futures = []
     for _, sample in enumerate(test_set):
         future = executor.submit(run_test_time_training, sample)
@@ -110,5 +113,5 @@ with concurrent.futures.ThreadPoolExecutor(max_workers=args.num_threads) as exec
         all_history.append(performance_history)
 
 print(np.array(all_history).mean(axis=0))
-with open(f"./{args.task}_predictions.json", "w") as f:
+with open(f"./{task}_predictions.json", "w") as f:
     json.dump(all_solutions, f)
