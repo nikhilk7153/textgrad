@@ -92,6 +92,7 @@ def load_task(task_name: str, evaluation_api: EngineLM, *args, **kwargs) -> Tupl
 
 
 def load_instance_task(task_name: str, evaluation_api: EngineLM, *args, **kwargs):
+
     if "MMLU_" in task_name:
         subset = task_name[5:]
         test_set = MMLUInstanceDataset(evaluation_api=evaluation_api, subset=subset, split="test", *args, **kwargs)
@@ -103,10 +104,10 @@ def load_instance_task(task_name: str, evaluation_api: EngineLM, *args, **kwargs
     elif task_name in ["LeetCodeHardEval"]:
         dataset = LeetCodeHardEval()
         return dataset
-    
     elif "MedQA" in task_name:
         from .medqa import MedQAInstanceDataset
-        test_set = MedQAInstanceDataset(evaluation_api=evaluation_api, )
+        test_set = MedQAInstanceDataset(evaluation_api=evaluation_api, subset="test")
+        return test_set
 
     else:
         raise ValueError(f"Instance task {task_name} not found.")

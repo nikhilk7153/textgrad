@@ -47,6 +47,8 @@ class MMLU(Dataset):
         choices = row["choices"]
         # Choices will be a. Choice 1 b. Choice 2 ... etc
         choices_str = "\n".join([f"{chr(65+i)}. {choice}" for i, choice in enumerate(choices)])
+
+
         answer = chr(65+row["answer"])
         question_prompt = f"Question: {question}\nChoices:\n{choices_str}"
         return question_prompt, answer

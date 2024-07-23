@@ -2,11 +2,9 @@ import platformdirs
 from datasets import load_dataset
 import json
 
-
 from textgrad.variable import Variable
 from textgrad.loss import MultiChoiceTestTime, MultiFieldTokenParsedEvaluation
 from .base import Dataset
-
 import re
 
 def eval_string_based(response_text, correct_answer):
@@ -17,17 +15,20 @@ def eval_string_based(response_text, correct_answer):
     score = 1.0 if extracted_answer == correct_answer else 0.0
     return score
 
+'''
 def make_dataset(file_path):
 
     dataset = []
 
-    with open(file_path) as file:
-        data = json.loads(file)
+    letter_to_num = {"A": 0, "B": 1, "C": 2, "D": 3}
 
-        dataset.append({"question": data["question"], "choices": [data["options"]["A"], data["options"]["B"], data["options"]["C"], data["options"]["D"]], "answer": data["answer_idx"]})
+    with open(file_path) as file:
+        for line in file:
+            data = json.loads(line)
+            dataset.append({"question": data["question"], "choices": [data["options"]["ending0"], data["options"]["ending1"], data["options"]["ending2"], data["options"]["ending3"]], "answer": data["label"]})
 
     return dataset 
-
+'''
 
 # Below template is from https://github.com/openai/simple-evals/blob/main/common.py#L12
 QUERY_TEMPLATE_MULTICHOICE = """
@@ -35,10 +36,10 @@ Answer the following multiple choice question. The last line of your response sh
 
 {Question}
 
-(A) {A}
-(B) {B}
-(C) {C}
-(D) {D}
+A) {A}
+B) {B}
+C) {C}
+D) {D}
 """.strip()
 
 class MedQA(Dataset):
@@ -51,8 +52,8 @@ class MedQA(Dataset):
         self.root = root
         self.subset = subset
         assert split in ["train", "validation", "test"]
-        #self.data = load_dataset("cais/mmlu", subset, cache_dir=root, split=split if split != "train" else "dev")
-
+        self.data = load_dataset("GBAKER/MedQA-USMLE-4-options-hf-MiniLM-IR-cs", cache_dir=root, split=split)
+        '''
         self.data = []
 
         if split == "train":
@@ -63,18 +64,24 @@ class MedQA(Dataset):
 
         if split == "test":
             self.data = make_dataset("/Users/nikhilkhandekar/Downloads/data_clean/questions/US/4_options/phrases_no_exclude_test.jsonl")
-
+        '''
         self.split = split
         self._task_description = 'You will answer multiple-choice questions. Think step by step.'
             
     def __getitem__(self, index):
         row = self.data[index]
-        question = row["question"]
-        choices = row["choices"]
+        question = row["sent1"]
+        #choices = row["choices"]
         # Choices will be a. Choice 1 b. Choice 2 ... etc
-        choices_str = "\n".join([f"{chr(65+i)}. {choice}" for i, choice in enumerate(choices)])
-        answer = chr(65+row["answer"])
-        question_prompt = f"Question: {question}\nChoices:\n{choices_str}"
+        #choices_str = "\n".join([f"{chr(65+i)}. {choice}" for i, choice in enumerate(choices)])
+
+        choices_str = "A. " + row["ending0"]
+        choices_str += "\nB. " + row["ending1"]
+        choices_str += "\nC. " + row["ending2"]
+        choices_str += "\nD. " + row["ending3"]
+  
+        answer = chr(65+row["label"])
+        question_prompt = f"Question: {question}\n\nChoices:\n\n{choices_str}"
         return question_prompt, answer
 
     def __len__(self):
@@ -133,18 +140,19 @@ class MedQAInstanceDataset(MedQA):
     
     def __getitem__(self, index):
         row = self.data[index]
-        question = row["question"]
-        choices = row["choices"]
+        question = row["sent1"]
         choices_dict = dict(
-                A=choices[0], B=choices[1], C=choices[2], D=choices[3], Question=question
+                A=row["ending0"], B=row["ending1"], C=row["ending2"], D=row["ending3"], Question=question
             )
         question_prompt = QUERY_TEMPLATE_MULTICHOICE.format(**choices_dict)
 
         # Choices will be a. Choice 1 b. Choice 2 ... etc
-        answer = chr(65+row["answer"])
+        answer = chr(65+ row["label"])
         # TODO: Make the two-way comparison class abstract enough.
         # TODO: How do we determine the role of the instances? We should be more consistent
         return question_prompt, answer, self._get_instance_test_time_objective(question_prompt), self._get_instance_eval_fn(question_prompt, answer)
 
     def get_default_task_instruction(self):
         return "Given a multiple choice question, the goal is to select the correct final answer from the choices."
+
+

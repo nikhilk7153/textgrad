@@ -192,9 +192,12 @@ class AzureChatOpenAI(ChatOpenAI):
             raise ValueError("Please set the AZURE_OPENAI_API_KEY, AZURE_OPENAI_API_BASE, and AZURE_OPENAI_API_VERSION environment variables if you'd like to use Azure OpenAI models.")
         
         self.client = AzureOpenAI(
-            api_version=api_version,
-            api_key=os.getenv("AZURE_OPENAI_API_KEY"),
-            azure_endpoint=os.getenv("AZURE_OPENAI_API_BASE"),
+            api_version="2024-03-01-preview",
+            api_key="a494edc84d714b6c8a12e7212974b793",
+            azure_endpoint="https://bionlp-gpt4-wang.openai.azure.com/",
             azure_deployment=model_string,
         )
+
+        print(model_string)
+        
         self.model_string = model_string
