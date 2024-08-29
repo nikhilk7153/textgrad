@@ -206,7 +206,7 @@ class AzureChatOpenAI(ChatOpenAI):
         self.client = AzureOpenAI(
             api_version="2024-03-01-preview",
             api_key="",
-            azure_endpoint="",
+            azure_endpoint=",
             azure_deployment=model_string,
         )
         

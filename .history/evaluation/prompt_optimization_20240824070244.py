@@ -14,9 +14,9 @@ def set_seed(seed):
     np.random.seed(seed)
     random.seed(seed)
 
-os.environ["AZURE_OPENAI_API_KEY"] = ""
-os.environ["AZURE_OPENAI_API_BASE"] = ""
-os.environ["OPENAI_API_KEY"] = ""
+os.environ["AZURE_OPENAI_API_KEY"] = "a494edc84d714b6c8a12e7212974b793"
+os.environ["AZURE_OPENAI_API_BASE"] = "https://bionlp-gpt4-wang.openai.azure.com/"
+os.environ["OPENAI_API_KEY"] = "a494edc84d714b6c8a12e7212974b793"
 os.environ["AZURE_OPENAI_ENDPOINT"] = "2024-07-18-preview"     
 
 task = "MedQA_Prompt"

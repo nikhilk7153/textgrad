@@ -14,13 +14,13 @@ def set_seed(seed):
     np.random.seed(seed)
     random.seed(seed)
 
-os.environ["AZURE_OPENAI_API_KEY"] = ""
-os.environ["AZURE_OPENAI_API_BASE"] = ""
-os.environ["OPENAI_API_KEY"] = ""
+os.environ["AZURE_OPENAI_API_KEY"] = "a494edc84d714b6c8a12e7212974b793"
+os.environ["AZURE_OPENAI_API_BASE"] = "https://bionlp-gpt4-wang.openai.azure.com/"
+os.environ["OPENAI_API_KEY"] = "a494edc84d714b6c8a12e7212974b793"
 os.environ["AZURE_OPENAI_ENDPOINT"] = "2024-07-18-preview"     
 
 task = "MedQA_Prompt"
-evaluation_engine = "azure-gpt-35-turbo-16k"
+evaluation_engine = "azure-gpt-4-32k"
 test_engine = "azure-gpt-35-turbo"
 batch_size = 3
 max_epochs = 3
@@ -49,9 +49,7 @@ def eval_sample(item, eval_fn, model):
     x = tg.Variable(x, requires_grad=False, role_description="query to the language model")
     y = tg.Variable(y, requires_grad=False, role_description="correct answer for the query")
 
-    if isinstance(y, np.int64):
-        y = int(y)
-
+    
     response = model(x)
     try:
         eval_output_variable = eval_fn(inputs=dict(prediction=response, ground_truth_answer=y))
